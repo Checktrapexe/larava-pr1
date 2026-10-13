@@ -15,12 +15,8 @@
 
 
 </head>
-<body class="bg-amber-100">
-
-<h1> {{ $title }} </h1>
-
+<body class="bg-gray-700">
 @include('partials.nav')
-
 <main>
     {{ $slot }}
 </main>

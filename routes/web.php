@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CharacterController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -10,6 +11,8 @@ Route::view('/about', 'about')->name(name: 'about');
 
 Route::view('/contact', 'contact')->name(name: 'contact');;
 
+Route::resource('/characters', CharacterController::class);
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -17,9 +20,9 @@ Route::get('/dashboard', function () {
 
 //self insert-------------------------------
 
-use App\Http\Controllers\UserController;
-
-Route::get('/user/{id}', [UserController::class, 'show']);
+//use App\Http\Controllers\UserController;
+//
+//Route::get('/user/{id}', [UserController::class, 'show']);
 
 //------------------------------------------
 
