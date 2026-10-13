@@ -9,9 +9,7 @@ class CharacterController extends Controller
 {
     public function index()
     {
-//        $character = new Character();
-//        $character->name = 'Yattira';
-//        $character->description = 'temp desc';
+
         $characters = Character::all();
 
 

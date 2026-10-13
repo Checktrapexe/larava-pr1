@@ -1,4 +1,4 @@
 @props(['active' => false])
 
 
-<a {{$attributes}} class="{{ $active ? 'text-red-600' : '' }}">{{$slot}}</a>
+<a {{$attributes}} class="{{ $active ? 'text-orange-600' : '' }} font-bold hover:text-orange-400 transition-colors p-3">{{$slot}}</a>
