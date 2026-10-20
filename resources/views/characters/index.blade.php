@@ -7,7 +7,7 @@
             @foreach($characters as $character)
                 <div class="flex flex-col bg-gray-600 py-10 px-5">
                     <h3 class="font-bold mb-6">{{ $character->name }}</h3>
-                    <p>{{ $character->description }}</p>
+                    <p>{{ Str::limit($character->description, 100) }}</p>
                     <a class="align-bottom font-bold hover:text-orange-400 transition-colors p-3"
                        href="{{ route('characters.show', $character) }}">
                         Show character

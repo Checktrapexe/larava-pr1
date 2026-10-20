@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('characters', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->binary('image')->nullable();
             $table->longText('description');
             $table->timestamps();
