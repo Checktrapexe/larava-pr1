@@ -5,6 +5,16 @@
     <x-navlink href="{{route('about')}}" :active="request()->routeIs('about')">About</x-navlink>
     <x-navlink href="{{route('contact')}}" :active="request()->routeIs('contact')">Contact</x-navlink>
 
-    <x-navlink href="{{route('login')}}" :active="request()->routeIs('login')">login
-    </x-navlink>
+
+    @auth
+        <span class="text-white px-3">{{ auth()->user()->name }}</span>
+
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="text-white hover:text-orange-400 px-3">Logout</button>
+        </form>
+    @else
+        <x-navlink href="{{ route('login') }}" :active="request()->routeIs('login')">Login</x-navlink>
+        <x-navlink href="{{ route('register') }}" :active="request()->routeIs('register')">Register</x-navlink>
+    @endauth
 </nav>
