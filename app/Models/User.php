@@ -30,6 +30,12 @@ class User extends Authenticatable
         ];
     }
 
+    public function characters()
+    {
+        return $this->hasMany(Character::class);
+    }
+
+
     protected $fillable = [
         'name',
         'email',

@@ -5,6 +5,9 @@ use App\Http\Controllers\CharacterController;
 use Illuminate\Support\Facades\Route;
 
 
+Route::get('/characters/{character}/image', [CharacterController::class, 'image'])
+    ->name('characters.image');
+
 Route::view('/', 'welcome')->name(name: 'home');
 
 Route::view('/about', 'about')->name(name: 'about');
@@ -12,6 +15,13 @@ Route::view('/about', 'about')->name(name: 'about');
 Route::view('/contact', 'contact')->name(name: 'contact');;
 
 Route::resource('/characters', CharacterController::class);
+
+Route::resource('/characters', CharacterController::class)
+    ->except(['index', 'show'])
+    ->middleware('auth');
+
+Route::resource('/characters', CharacterController::class)
+    ->only(['index', 'show']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
