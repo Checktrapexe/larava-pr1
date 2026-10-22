@@ -39,6 +39,29 @@
                     @endif
                 </p>
             </div>
+
+
+            @if($character->isOwnedBy(auth()->user()))
+                <div class="flex shrink-0 items-center gap-2">
+                    <a href="{{ route('characters.edit', $character) }}"
+                       class="bg-orange-600 hover:bg-orange-500 transition-colors font-bold text-white text-sm px-4 py-2 rounded">
+                        Edit
+                    </a>
+
+                    <form action="{{ route('characters.destroy', $character) }}" method="POST"
+                          onsubmit="return confirm('Are you sure you want to delete {{ addslashes($character->name) }}? This cannot be undone.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="bg-red-700 hover:bg-red-600 transition-colors font-bold text-white text-sm px-4 py-2 rounded">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+                @endif
+                </div>
+
+
         </article>
     </main>
 </x-layout>

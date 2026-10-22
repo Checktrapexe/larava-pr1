@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Character;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CharacterController extends Controller
 {
@@ -35,39 +37,63 @@ class CharacterController extends Controller
             'categories' => 'required|string|max:255',
         ]);
 
-        // "Hero, sorcerer ,hero" -> ['Hero', 'sorcerer']
-        $names = collect(explode(',', $validated['categories']))
-            ->map(fn($name) => trim($name))
-            ->filter()
-            ->unique(fn($name) => Str::lower($name))
-            ->values();
+        $names = $this->parseCategories($validated['categories']);
 
-        if ($names->isEmpty()) {
-            return back()->withErrors(['categories' => 'Give at least one category.'])->withInput();
-        }
-
-        if ($names->contains(fn($name) => mb_strlen($name) > 30)) {
-            return back()->withErrors(['categories' => 'A category can be 30 characters at most.'])->withInput();
-        }
+        $data = collect($validated)->except(['categories', 'image'])->all();
 
         if ($request->hasFile('image')) {
-            $validated['image'] = file_get_contents($request->file('image')->getRealPath());
+            $data['image'] = file_get_contents($request->file('image')->getRealPath());
         }
 
-        $character = $request->user()->characters()->create(
-            collect($validated)->except('categories')->all()
-        );
+        $character = $request->user()->characters()->create($data);
 
-        $categoryIds = $names->map(function ($name) {
-            $category = Category::whereRaw('LOWER(name) = ?', [Str::lower($name)])->first()
-                ?? Category::create(['name' => $name]);
-
-            return $category->id;
-        });
-
-        $character->categories()->sync($categoryIds->all());
+        $this->syncCategories($character, $names);
 
         return redirect()->route('characters.show', $character);
+    }
+
+    public function edit(Request $request, Character $character)
+    {
+        abort_unless($character->isOwnedBy($request->user()), 403);
+
+        return view('characters.edit', compact('character'));
+    }
+
+    public function update(Request $request, Character $character)
+    {
+        abort_unless($character->isOwnedBy($request->user()), 403);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:2000',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'categories' => 'required|string|max:255',
+        ]);
+
+        $names = $this->parseCategories($validated['categories']);
+
+        $data = collect($validated)->except(['categories', 'image'])->all();
+
+        // only replace the image when a new file was chosen
+        if ($request->hasFile('image')) {
+            $data['image'] = file_get_contents($request->file('image')->getRealPath());
+        }
+
+        $character->update($data);
+
+        $this->syncCategories($character, $names);
+
+        return redirect()->route('characters.show', $character);
+    }
+
+    public function destroy(Request $request, Character $character)
+    {
+        abort_unless($character->isOwnedBy($request->user()), 403);
+
+        $character->categories()->detach();
+        $character->delete();
+
+        return redirect()->route('characters.index');
     }
 
     public function image(Character $character)
@@ -77,5 +103,37 @@ class CharacterController extends Controller
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($character->image);
 
         return response($character->image)->header('Content-Type', $mime);
+    }
+
+    // "Hero, sorcerer ,hero" -> ['Hero', 'sorcerer']
+    private function parseCategories(string $input): Collection
+    {
+        $names = collect(explode(',', $input))
+            ->map(fn($name) => trim($name))
+            ->filter()
+            ->unique(fn($name) => Str::lower($name))
+            ->values();
+
+        if ($names->isEmpty()) {
+            throw ValidationException::withMessages(['categories' => 'Give at least one category.']);
+        }
+
+        if ($names->contains(fn($name) => mb_strlen($name) > 30)) {
+            throw ValidationException::withMessages(['categories' => 'A category can be 30 characters at most.']);
+        }
+
+        return $names;
+    }
+
+    private function syncCategories(Character $character, Collection $names): void
+    {
+        $ids = $names->map(function ($name) {
+            $category = Category::whereRaw('LOWER(name) = ?', [Str::lower($name)])->first()
+                ?? Category::create(['name' => $name]);
+
+            return $category->id;
+        });
+
+        $character->categories()->sync($ids->all());
     }
 }

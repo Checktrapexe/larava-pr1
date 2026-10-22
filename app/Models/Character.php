@@ -22,5 +22,9 @@ class Character extends Model
         return $this->belongsTo(User::class);
     }
 
- 
+    public function isOwnedBy(?User $user): bool
+    {
+        return $user !== null && (int)$this->user_id === $user->id;
+    }
+
 }
