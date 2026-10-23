@@ -11,11 +11,27 @@ use Illuminate\Validation\ValidationException;
 
 class CharacterController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $characters = Character::with('categories')->get();
+        $search = trim((string)$request->query('search', ''));
+        $category = $request->query('category');
 
-        return view('characters.index', compact('characters'));
+        $characters = Character::with('categories')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%")
+                        ->orWhere('description', 'LIKE', "%{$search}%");
+                });
+            })
+            ->when($category, function ($query) use ($category) {
+                $query->whereHas('categories', fn($q) => $q->where('categories.id', $category));
+            })
+            ->latest()
+            ->get();
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('characters.index', compact('characters', 'categories', 'search', 'category'));
     }
 
     public function show(Character $character)
