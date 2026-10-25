@@ -6,7 +6,10 @@
     <x-navlink href="{{ route('contact') }}" :active="request()->routeIs('contact')">Contact</x-navlink>
 
     @auth
-        <span class="px-3 py-2 font-bold text-orange-500">{{ auth()->user()->name }}</span>
+        <a href="{{ route('users.show', auth()->user()) }}"
+           class="px-3 py-2 font-bold text-orange-500 hover:text-orange-400 transition-colors">
+            {{ auth()->user()->name }}
+        </a>
 
         <form action="{{ route('logout') }}" method="POST">
             @csrf

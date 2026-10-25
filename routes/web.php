@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CharacterController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\UserController;
 
 Route::get('/characters/{character}/image', [CharacterController::class, 'image'])
     ->name('characters.image');
@@ -32,6 +32,9 @@ Route::resource('/auth', \App\Http\Controllers\Auth\AuthenticatedSessionControll
 Route::patch('/characters/{character}/toggle', [CharacterController::class, 'toggle'])
     ->middleware('auth')
     ->name('characters.toggle');
+
+
+Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
 
 //self insert-------------------------------
 

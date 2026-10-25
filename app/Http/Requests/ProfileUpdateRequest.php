@@ -17,6 +17,7 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'bio' => ['nullable', 'string', 'max:500'],
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -28,4 +29,5 @@ class ProfileUpdateRequest extends FormRequest
             ],
         ];
     }
+
 }
