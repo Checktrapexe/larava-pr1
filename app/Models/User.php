@@ -30,6 +30,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function isAdmin(): bool
+    {
+        return (int)$this->role === 1;
+    }
+
     public function characters()
     {
         return $this->hasMany(Character::class);

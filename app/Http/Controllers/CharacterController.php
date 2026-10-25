@@ -16,7 +16,8 @@ class CharacterController extends Controller
         $search = trim((string)$request->query('search', ''));
         $category = $request->query('category');
 
-        $characters = Character::with('categories')
+        $characters = Character::visibleTo($request->user())
+            ->with('categories')
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
@@ -34,8 +35,10 @@ class CharacterController extends Controller
         return view('characters.index', compact('characters', 'categories', 'search', 'category'));
     }
 
-    public function show(Character $character)
+    public function show(Request $request, Character $character)
     {
+        abort_unless($character->active || $request->user()?->isAdmin(), 404);
+
         return view('characters.show', compact('character'));
     }
 
@@ -90,7 +93,6 @@ class CharacterController extends Controller
 
         $data = collect($validated)->except(['categories', 'image'])->all();
 
-        // only replace the image when a new file was chosen
         if ($request->hasFile('image')) {
             $data['image'] = file_get_contents($request->file('image')->getRealPath());
         }
@@ -112,8 +114,19 @@ class CharacterController extends Controller
         return redirect()->route('characters.index');
     }
 
-    public function image(Character $character)
+    public function toggle(Request $request, Character $character)
     {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        $character->active = !$character->active;
+        $character->save();
+
+        return back();
+    }
+
+    public function image(Request $request, Character $character)
+    {
+        abort_unless($character->active || $request->user()?->isAdmin(), 404);
         abort_if(!$character->image, 404);
 
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($character->image);

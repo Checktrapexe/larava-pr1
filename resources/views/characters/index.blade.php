@@ -46,8 +46,15 @@
 
         <section class="mx-auto my-8 grid max-w-5xl grid-cols-1 gap-6 px-4 md:grid-cols-2 lg:grid-cols-3">
             @forelse($characters as $character)
-                <div class="flex flex-col bg-gray-600 py-10 px-5">
+                <div class="flex flex-col bg-gray-600 py-10 px-5 {{ $character->active ? '' : 'opacity-60' }}">
                     <h3 class="font-bold mb-3">{{ $character->name }}</h3>
+
+                    @unless($character->active)
+                        <span
+                            class="self-start mb-3 bg-gray-800 text-gray-300 text-xs font-bold px-3 py-1 rounded-full">
+            Inactive
+        </span>
+                    @endunless
 
                     @if($character->categories->isNotEmpty())
                         <div class="flex flex-wrap gap-2 mb-4">

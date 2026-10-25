@@ -40,6 +40,23 @@
                 </p>
             </div>
 
+            @if(auth()->user()?->isAdmin())
+                <div class="flex items-center gap-3">
+        <span class="text-xs font-bold px-3 py-1 rounded-full text-white
+                     {{ $character->active ? 'bg-green-700' : 'bg-gray-500' }}">
+            {{ $character->active ? 'Active' : 'Inactive' }}
+        </span>
+
+                    <form action="{{ route('characters.toggle', $character) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit"
+                                class="text-sm font-bold text-gray-100 hover:text-orange-400 underline transition-colors">
+                            {{ $character->active ? 'Deactivate' : 'Activate' }}
+                        </button>
+                    </form>
+                </div>
+            @endif
 
             @if($character->isOwnedBy(auth()->user()))
                 <div class="flex shrink-0 items-center gap-2">

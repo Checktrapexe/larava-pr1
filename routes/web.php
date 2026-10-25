@@ -28,6 +28,11 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::resource('/auth', \App\Http\Controllers\Auth\AuthenticatedSessionController::class);
+
+Route::patch('/characters/{character}/toggle', [CharacterController::class, 'toggle'])
+    ->middleware('auth')
+    ->name('characters.toggle');
+
 //self insert-------------------------------
 
 //use App\Http\Controllers\UserController;
