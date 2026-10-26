@@ -22,7 +22,7 @@
             <input type="search" name="search" value="{{ $search }}"
                    placeholder="Search by name or description..."
                    class="flex-1 bg-gray-800 text-white p-2 rounded border border-gray-500">
-
+            
             <select name="category"
                     class="bg-gray-800 text-white p-2 rounded border border-gray-500">
                 <option value="">All categories</option>
