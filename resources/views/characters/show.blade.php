@@ -6,7 +6,7 @@
             &larr; Back to all characters
         </a>
 
-        <article class="bg-gray-600 rounded-lg shadow-lg overflow-hidden
+        <article class="bg-gray-600 rounded-lg shadow-lg overflow-hidden mb-4
                         {{ $character->image ? 'md:grid md:grid-cols-2' : '' }}">
 
             @if($character->image)
@@ -80,6 +80,59 @@
                 </div>
 
 
+        </article>
+
+        <article class="bg-gray-600 rounded-lg shadow-lg overflow-hidden">
+            <div class="p-8 flex flex-col gap-4">
+                <h2 class="text-xl font-extrabold text-orange-500">
+                    Comments ({{ $character->comments->count() }})
+                </h2>
+
+                @auth
+                    <form action="{{ route('comments.store', $character) }}" method="POST" class="flex flex-col gap-2">
+                        @csrf
+                        <textarea name="comment" rows="3" placeholder="Write a comment..."
+                                  class="w-full rounded bg-gray-700 text-gray-100 p-3 border border-gray-500 focus:border-orange-500 focus:outline-none">{{ old('comment') }}</textarea>
+                        @error('comment')
+                        <p class="text-red-400 text-sm">{{ $message }}</p>
+                        @enderror
+                        <button type="submit"
+                                class="self-start bg-orange-600 hover:bg-orange-500 transition-colors font-bold text-white text-sm px-4 py-2 rounded">
+                            Post comment
+                        </button>
+                    </form>
+                @else
+                    <p class="text-gray-300">
+                        <a href="{{ route('login') }}" class="text-orange-400 font-bold">Log in</a> to leave a comment.
+                    </p>
+                @endauth
+
+                @forelse($character->comments->sortByDesc('created_at') as $comment)
+                    <div class="bg-gray-700 rounded p-4">
+                        <p class="text-sm text-gray-300 mb-1">
+                            <a href="{{ route('users.show', $comment->user) }}" class="font-bold text-orange-400">
+                                {{ $comment->user->name }}
+                            </a>
+                            &middot; {{ $comment->created_at->format('d M Y H:i') }}
+                        </p>
+                        <p class="text-gray-100 whitespace-pre-line">{{ $comment->text }}</p>
+
+                        @if($comment->canBeDeletedBy(auth()->user()))
+                            <form action="{{ route('comments.destroy', $comment) }}" method="POST"
+                                  onsubmit="return confirm('Delete this comment?')" class="mt-2">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="text-sm font-bold text-red-400 hover:text-red-300 underline transition-colors">
+                                    Delete
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                @empty
+                    <p class="text-gray-300">No comments yet. Be the first!</p>
+                @endforelse
+            </div>
         </article>
     </main>
 </x-layout>

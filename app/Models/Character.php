@@ -42,4 +42,9 @@ class Character extends Model
         return $user !== null && (int)$this->user_id === $user->id;
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
 }

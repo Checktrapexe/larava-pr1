@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CharacterController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentController;
 
 Route::get('/characters/{character}/image', [CharacterController::class, 'image'])
     ->name('characters.image');
@@ -36,6 +37,12 @@ Route::patch('/characters/{character}/toggle', [CharacterController::class, 'tog
 
 Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
 
+
+Route::post('/characters/{character}/comments', [CommentController::class, 'store'])
+    ->name('comments.store');
+
+Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
+    ->name('comments.destroy');
 //self insert-------------------------------
 
 //use App\Http\Controllers\UserController;
