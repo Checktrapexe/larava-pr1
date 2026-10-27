@@ -33,7 +33,8 @@
                 <p class="text-gray-100 leading-relaxed whitespace-pre-line">{{ $character->description }}</p>
 
                 <p class="mt-auto pt-4 text-sm text-gray-300 border-t border-gray-500">
-                    By <span class="font-bold">{{ $character->user?->name ?? 'Unknown' }}</span>
+                    By <a href="{{ route('users.show', $character->user) }}"
+                          class=" font-bold"> {{ $character->user?->name ?? 'Unknown' }}</a>
                     @if($character->created_at)
                         &middot; {{ $character->created_at->format('d M Y') }}
                     @endif
