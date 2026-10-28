@@ -4,10 +4,10 @@
     </x-navlink>
 
     @auth
-        <a href="{{ route('users.show', auth()->user()) }}"
-           class="px-3 py-2 font-bold text-orange-500 hover:text-orange-400 transition-colors">
+     
+        <x-navlink href="{{ route('users.show', auth()->user()) }}" :active="request()->routeIs('users.show')">
             {{ auth()->user()->name }}
-        </a>
+        </x-navlink>
 
         <form action="{{ route('logout') }}" method="POST">
             @csrf
@@ -18,5 +18,12 @@
     @else
         <x-navlink href="{{ route('login') }}" :active="request()->routeIs('login')">Login</x-navlink>
         <x-navlink href="{{ route('register') }}" :active="request()->routeIs('register')">Register</x-navlink>
+    @endauth
+    @auth
+        @if(auth()->user()->isAdmin())
+            <x-navlink href="{{ route('admin.index') }}" :active="request()->routeIs('admin.index')">
+                Admin
+            </x-navlink>
+        @endif
     @endauth
 </nav>
