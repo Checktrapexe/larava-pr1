@@ -3,14 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Character;
+use App\Models\Category;
+use App\Models\Comment;
+use App\Models\User;
 
 class HomeController extends Controller
 {
-    // Home / landing page (shows the 3 newest characters)
-    public function __invoke()
+    public function index()
     {
+        return view('welcome', [
+            'characters' => Character::with(['user', 'categories'])
+                ->where('active', true)
+                ->latest()
+                ->take(6)
+                ->get(),
 
-        $characters = Character::where('active', true)->latest()->take(3)->get();
-        return view('welcome', ['characters' => $characters]);
+            'featured' => Character::with(['user', 'categories'])
+                ->where('active', true)
+                ->inRandomOrder()
+                ->first(),
+            
+
+            'stats' => [
+                'characters' => Character::where('active', true)->count(),
+                'creators' => User::has('characters')->count(),
+                'comments' => Comment::count(),
+            ],
+        ]);
     }
 }

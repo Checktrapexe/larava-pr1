@@ -12,7 +12,7 @@ use App\Http\Controllers\HomeController;
 //public pages
 
 // Home / landing page
-Route::get('/', HomeController::class)->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 
 // About page
