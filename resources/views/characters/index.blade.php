@@ -19,10 +19,8 @@
 
         <form method="GET" action="{{ route('characters.index') }}"
               class="mx-auto mt-8 flex max-w-5xl flex-col gap-3 px-4 sm:flex-row">
-            <input type="search" name="search" value="{{ $search }}"
-                   placeholder="Search by name or description..."
-                   class="flex-1 bg-gray-800 text-white p-2 rounded border border-gray-500">
-            
+
+
             <select name="category"
                     class="bg-gray-800 text-white p-2 rounded border border-gray-500">
                 <option value="">All categories</option>
@@ -36,7 +34,7 @@
                 Search
             </button>
 
-            @if($search !== '' || $category)
+            @if($category)
                 <a href="{{ route('characters.index') }}"
                    class="px-4 py-2 text-center font-bold text-gray-300 hover:text-orange-400 transition-colors">
                     Reset

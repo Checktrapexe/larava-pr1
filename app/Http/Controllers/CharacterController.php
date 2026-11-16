@@ -13,17 +13,10 @@ class CharacterController extends Controller
 {
     public function index(Request $request)
     {
-        $search = trim((string)$request->query('search', ''));
         $category = $request->query('category');
 
         $characters = Character::visibleTo($request->user())
             ->with('categories')
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%{$search}%")
-                        ->orWhere('description', 'LIKE', "%{$search}%");
-                });
-            })
             ->when($category, function ($query) use ($category) {
                 $query->whereHas('categories', fn($q) => $q->where('categories.id', $category));
             })
@@ -32,7 +25,7 @@ class CharacterController extends Controller
 
         $categories = Category::orderBy('name')->get();
 
-        return view('characters.index', compact('characters', 'categories', 'search', 'category'));
+        return view('characters.index', compact('characters', 'categories', 'category'));
     }
 
     public function show(Request $request, Character $character)
