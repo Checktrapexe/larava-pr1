@@ -15,14 +15,14 @@ class CommentController extends Controller
             'comment' => ['required', 'string', 'max:1000'],
         ]);
 
+        //makes it so the user has to make 3 characters before commenting
+        $created = $request->user()->characters()->count();
 
-//        $created = $request->user()->characters()->count();
-//
-//        if ($created < 3) {
-//            return back()->withErrors([
-//                'text' => "You can only comment after creating at least 3 characters"
-//            ])->withInput();
-//        }
+        if ($created < 3) {
+            return back()->withErrors([
+                'text' => "You can only comment after creating at least 3 characters"
+            ])->withInput();
+        }
 
         $character->comments()->create([
             'user_id' => auth()->id(),

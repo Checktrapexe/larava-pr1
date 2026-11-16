@@ -25,16 +25,23 @@
                 @enderror
             </div>
 
-            <div class="flex flex-col gap-1">
-                <label for="categories" class="font-bold text-white">Categories</label>
-                <input type="text" id="categories" name="categories"
-                       value="{{ old('categories', $character->categories->pluck('name')->implode(', ')) }}"
-                       placeholder="e.g. Hero, Sorcerer, Anime"
-                       class="bg-gray-800 text-white p-2 rounded border border-gray-500">
-                <p class="text-gray-400 text-xs">Separate multiple categories with a comma.</p>
-                @error('categories')
-                <p class="text-red-400 text-sm">{{ $message }}</p>
-                @enderror
+            <div class="flex flex-col gap-2">
+                <span class="font-bold text-white">Categories</span>
+
+                @php
+                    $selected = old('category_ids', isset($character) ? $character->categories->pluck('id')->all() : []);
+                @endphp
+
+                <div class="flex flex-wrap gap-3">
+                    @foreach($categories as $cat)
+                        <label class="flex items-center gap-2 text-white">
+                            <input type="checkbox" name="category_ids[]" value="{{ $cat->id }}"
+                                @checked(in_array($cat->id, $selected))>
+                            {{ $cat->name }}
+                        </label>
+                    @endforeach
+                </div>
+                
             </div>
 
             <div class="flex flex-col gap-2">

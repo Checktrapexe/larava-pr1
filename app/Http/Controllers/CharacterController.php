@@ -37,7 +37,11 @@ class CharacterController extends Controller
 
     public function create()
     {
-        return view('characters.create');
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('characters.create', compact('categories'));
+
     }
 
     public function store(Request $request)
@@ -64,11 +68,15 @@ class CharacterController extends Controller
         return redirect()->route('characters.show', $character);
     }
 
+
     public function edit(Request $request, Character $character)
     {
         abort_unless($character->isOwnedBy($request->user()), 403);
 
-        return view('characters.edit', compact('character'));
+        //selects alll categories and sends them to the view
+        $categories = Category::orderBy('name')->get();
+
+        return view('characters.edit', compact('character', 'categories'));
     }
 
     public function update(Request $request, Character $character)
@@ -79,12 +87,14 @@ class CharacterController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:2000',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'categories' => 'required|string|max:255',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
+            'new_categories' => 'nullable|string|max:255',
         ]);
 
-        $names = $this->parseCategories($validated['categories']);
+        $ids = $this->resolveCategoryIds($validated);
 
-        $data = collect($validated)->except(['categories', 'image'])->all();
+        $data = collect($validated)->except(['category_ids', 'new_categories', 'image'])->all();
 
         if ($request->hasFile('image')) {
             $data['image'] = file_get_contents($request->file('image')->getRealPath());
@@ -92,7 +102,7 @@ class CharacterController extends Controller
 
         $character->update($data);
 
-        $this->syncCategories($character, $names);
+        $character->categories()->sync($ids);
 
         return redirect()->route('characters.show', $character);
     }
@@ -147,15 +157,31 @@ class CharacterController extends Controller
         return $names;
     }
 
-    private function syncCategories(Character $character, Collection $names): void
+    private function resolveCategoryIds(array $validated): array
     {
-        $ids = $names->map(function ($name) {
+        $existing = collect($validated['category_ids'] ?? []);
+
+        $names = collect(explode(',', $validated['new_categories'] ?? ''))
+            ->map(fn($name) => trim($name))
+            ->filter()
+            ->unique(fn($name) => Str::lower($name))
+            ->values();
+
+        if ($existing->isEmpty() && $names->isEmpty()) {
+            throw ValidationException::withMessages(['categories' => 'Pick or add at least one category.']);
+        }
+
+        if ($names->contains(fn($name) => mb_strlen($name) > 30)) {
+            throw ValidationException::withMessages(['categories' => 'A category can be 30 characters at most.']);
+        }
+
+        $newIds = $names->map(function ($name) {
             $category = Category::whereRaw('LOWER(name) = ?', [Str::lower($name)])->first()
                 ?? Category::create(['name' => $name]);
 
             return $category->id;
         });
 
-        $character->categories()->sync($ids->all());
+        return $existing->merge($newIds)->unique()->values()->all();
     }
 }
